@@ -1,41 +1,18 @@
-[OpenNMS][]
-===========
+### 欢迎来到 OpenNMS中文系统站点
+OpenNMS是世界第一个在开源模式下开发的企业级网络管理应用平台。这里是OpenNMS中文版本。
 
-[OpenNMS][] is the world's first enterprise grade network management application platform developed under the open source model.
+## 世界第一个
+OpenNMS的项目开始于1999年7月并且2000年3月在SourceForge注册。
 
-Well, what does that mean?
+## 企业级
+它的设计之初就定位于监测上万个设备在单一的实例情况下。它带来的强大，可扩展性和灵活性，企业和运营商的需求。
 
-*	World's First
+## 应用平台
+OpenNMS是高可用的，它的目的是要创造一个独特的和高度可定制的集成管理解决方案。
 
-	The OpenNMS Project was started in July of 1999 and registered on SourceForge in March of 2000. It has years of experience on the alternatives.
+## 开放源代码
+OpenNMS是100%自由和开放源码的软件，没有许可证费、软件订阅或特殊的“企业版”。
 
-*	Enterprise Grade
 
-	It was designed from "day one" to monitor tens of thousands to ultimately unlimited devices with a single instance. It brings the power, scalability and flexibility that enterprises and carriers demand.
-
-*	Application Platform
-
-	While OpenNMS is useful "out of the box," it is designed to be highly customizable to create an unique and integrated management solution.
-
-* Open Source
-
-	OpenNMS is 100% Free and Open Source software, with no license fees, software subscriptions or special "enterprise" versions.
-
-Building OpenNMS
-================
-
-For details on building OpenNMS, please see the wiki page: [Building_OpenNMS][]
-
-Contributing to OpenNMS
-=======================
-
-Before making a pull request, please submit an [OCA][] for copyright assignment.  Note that this does **not** mean that you are giving up your copyright of your changes to OpenNMS, it instead allows for _dual_ copyright over contributed code.
-
-Also, it is recommended that you make your changes in master and make a pull request there, not in one of the release (eg. 1.12 or 1.10) branches.  Fixes can be cherry-picked back to a stable branch, but we try to keep churn out of the stable releases if possible.
-
-If you are using Eclipse, please read the [Eclipse][] page for details on setting up your workspace for code conventions and the plugins we use.
-
-[OpenNMS]:          http://www.opennms.org/
-[OCA]:              http://www.opennms.org/wiki/OCA
-[Eclipse]:          http://www.opennms.org/wiki/Eclipse
-[Building_OpenNMS]: http://www.opennms.org/wiki/Building_OpenNMS
+### 支持及联系信息
+有任何系统问题? 请参考[http://www.qoswork.com/](http://www.qoswork.com/)网站的内容，或发送邮件给[yinbangmin@126.com](mailto:yinbangmin@126.com)。
