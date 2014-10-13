@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.opennms</groupId>
+    <artifactId>dependencies</artifactId>
+    <version>1.12.9</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.opennms.dependencies</groupId>
+  <artifactId>jna-dependencies</artifactId>
+  <packaging>pom</packaging>
+  <name>OpenNMS JNA Dependencies</name>
+  <description>
+    This module is used to provide a single artifact that the opennms project
+    can depend on to use JNA
+  </description>
+  <dependencies>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>3.2.7-ONMS</version>
+    </dependency>
+    <dependency>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>platform</artifactId>
+      <version>3.2.7-ONMS</version>
+    </dependency>
+  </dependencies>
+</project>

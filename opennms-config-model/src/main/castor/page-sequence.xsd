@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" 
+            targetNamespace="http://xmlns.opennms.org/xsd/page-sequence" 
+				xmlns:this="http://xmlns.opennms.org/xsd/page-sequence"
+				elementFormDefault="qualified">
+
+  <element name="page-sequence" >
+    <annotation>
+      <documentation>
+      
+        Use this container to list the page in the order they are to be accessed for monitoring
+        or (soon) datacollection.
+      
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref="this:page" minOccurs="1" maxOccurs="unbounded" />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="page" >
+    <annotation>
+      <documentation>
+      
+        This element specifies all the possible attributes in as fine grained detail as possible.  All that
+        is really required (as you can see below) is the "path" attribute.  From that one attribute,
+        the IP address passed in through the ServiceMonitor and ServiceCollector interface, the URL will be
+        fully generated using the supplied defaults in this config.  Configure attributes these attributes to
+        the level of detail you need to fully control the behavior.
+        
+        A little bit of indirection is possible here with the host attribute.  If the host attribute is anything
+        other than the default, that value will be used instead of the IP address passed in through the API (Interface).
+        
+      </documentation>
+    </annotation>
+  
+    <complexType>
+      <sequence>
+        <element ref="this:parameter" minOccurs="0" maxOccurs="unbounded" />
+        <element ref="this:session-variable" minOccurs="0" maxOccurs="unbounded" />
+      </sequence>
+      <attribute name="method" type="this:allowed-methods" use="optional" default="GET" />
+      <attribute name="http-version" type="this:allowed-versions" use="optional" default="1.1" />
+      <attribute name="user-agent" type="string" use="optional" />
+      <attribute name="virtual-host" type="string" use="optional" />
+      <attribute name="scheme" type="string" use="optional" default="http" />
+      <attribute name="user-info" type="string" use="optional" />
+      <attribute name="host" type="string" use="optional" default="${ipaddr}" />
+      <attribute name="requireIPv6" type="boolean" use="optional" default="false" />
+      <attribute name="requireIPv4" type="boolean" use="optional" default="false" />
+      <attribute name="disable-ssl-verification" type="string" use="optional" default="true">
+        <annotation>
+          <documentation>
+            This element is used to enable or disable SSL host and certificate verification. Default: true (verification is disabled)
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="port" use="optional" default="80">
+        <simpleType>
+          <restriction base="int">
+            <minInclusive value="1"/>
+            <maxInclusive value="65535"/>
+          </restriction>
+        </simpleType>
+      </attribute>
+      <attribute name="path" type="string" use="required" />
+      <attribute name="query" type="string" use="optional" />
+      <attribute name="fragment" type="string" use="optional" />
+      <attribute name="failureMatch" type="string" use="optional" />
+      <attribute name="failureMessage" type="string" use="optional" />
+      <attribute name="successMatch" type="string" use="optional" />
+      <attribute name="locationMatch" type="string" use="optional" />
+      <attribute name="response-range" type="string" use="optional" default="100-399" />
+      <attribute name="ds-name" type="string" use="optional" />
+    </complexType>
+  </element>
+  
+  <element name="parameter">
+    <annotation>
+      <documentation>Currently only used for HTTP form parameters.</documentation>
+    </annotation>
+    <complexType>
+      <attribute name="key" type="string" use="required"/>
+      <attribute name="value" type="string" use="required"/>
+    </complexType>
+  </element>
+  
+  <element name="session-variable">
+    <annotation>
+      <documentation>Assign the value of a regex match group to a
+                     session variable with a user-defined name. The
+                     match group is identified by number and must
+                     be zero or greater.</documentation>
+    </annotation>
+    <complexType>
+      <attribute name="match-group" use="required">
+        <simpleType>
+          <restriction base="int">
+            <minInclusive value="0" />
+          </restriction>
+        </simpleType>
+      </attribute>
+      <attribute name="name" type="string" use="required" />
+    </complexType>
+  </element>
+  
+  <simpleType name="allowed-methods" >
+    <restriction base="string" >
+      <pattern value="GET|POST" />
+    </restriction>
+  </simpleType>
+  
+  <simpleType name="allowed-versions" >
+    <restriction base="string" >
+      <pattern value="1\.0|1\.1" />
+    </restriction>
+  </simpleType>
+  
+  <simpleType name="response-range">
+    <restriction base="string">
+      <pattern value="[1-5][0-9][0-9](-[1-5][0-9][0-9])?" />
+    </restriction>
+  </simpleType>
+</schema>

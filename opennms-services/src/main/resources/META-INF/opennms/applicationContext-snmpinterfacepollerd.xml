@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+	">
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+        
+    <bean name="pollContext" class="org.opennms.netmgt.snmpinterfacepoller.DefaultPollContext">
+      <property name="eventManager" ref="eventIpcManager" />
+      <property name="localHostName" ref="localHostName" />
+      <property name="name" value="OpenNMS.SnmpPoller.DefaultPollContext" />
+      <property name="snmpInterfaceDao" ref="snmpInterfaceDao" />
+      <property name="ipInterfaceDao" ref="ipInterfaceDao" />
+    </bean> 
+    
+    <bean name="pollableNetwork" class="org.opennms.netmgt.snmpinterfacepoller.pollable.PollableNetwork">
+        <constructor-arg ref="pollContext" />
+    </bean>
+    
+        
+    <bean name="daemon" class="org.opennms.netmgt.snmpinterfacepoller.SnmpPoller" destroy-method="stop">
+      <property name="pollerConfig" ref="snmpinterfacepollerConfig" />
+      <property name="network" ref="pollableNetwork" />
+    </bean>
+    
+    <bean id="init-snmpinterfacepollerConfig-factory" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+      <property name="staticMethod"><value>org.opennms.netmgt.config.SnmpInterfacePollerConfigFactory.init</value></property>
+    </bean>
+
+    <bean id="snmpinterfacepollerConfig" class="org.opennms.netmgt.config.SnmpInterfacePollerConfigFactory" depends-on="init-snmpinterfacepollerConfig-factory" factory-method="getInstance"/>
+	
+    <bean id="snmpPollerEventListenerAdapter" class="org.opennms.netmgt.model.events.AnnotationBasedEventListenerAdapter">
+  	  <property name="annotatedListener" ref="daemon" />
+  	  <property name="eventSubscriptionService" ref="eventSubscriptionService" />
+    </bean>
+   
+</beans>

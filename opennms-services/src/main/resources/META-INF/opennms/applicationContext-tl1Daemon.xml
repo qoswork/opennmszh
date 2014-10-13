@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+       
+       
+  <bean id="tl1dConfigurationDao" class="org.opennms.netmgt.dao.castor.DefaultTl1ConfigurationDao">
+    <property name="configResource" value="file:${opennms.home}/etc/tl1d-configuration.xml" />
+    <property name="reloadCheckInterval" value="-1" />
+  </bean>
+  
+  <bean id="daemon" class="org.opennms.netmgt.tl1d.Tl1d">
+    <property name="configurationDao" ref="tl1dConfigurationDao" />
+    <property name="eventForwarder" ref="eventForwarder" />
+  </bean>
+  
+  <bean id="daemonListener" class="org.opennms.netmgt.model.events.AnnotationBasedEventListenerAdapter">
+    <property name="annotatedListener" ref="daemon" />
+    <property name="eventSubscriptionService" ref="eventSubscriptionService" />
+  </bean>
+  
+</beans>

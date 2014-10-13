@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <bean id="populatedTemporaryDatabaseTestCase" class="org.opennms.netmgt.dao.db.PopulatedTemporaryDatabaseTestCase" init-method="setUp">
+    <property name="setupIpLike" ref="setupIpLike"/>
+    <property name="insertData" ref="insertData"/>
+  </bean>
+
+  <bean id="init-datasource-factory" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	<property name="staticMethod"><value>org.opennms.netmgt.config.DataSourceFactory.setInstance</value></property>
+	<property name="arguments">
+      <list>
+	    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+	      <property name="targetObject"><ref local="populatedTemporaryDatabaseTestCase"/></property>
+	      <property name="targetMethod"><value>getDataSource</value></property>
+	    </bean>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="dataSource" class="org.opennms.netmgt.config.DataSourceFactory" depends-on="init-datasource-factory" factory-method="getInstance"/>
+</beans>

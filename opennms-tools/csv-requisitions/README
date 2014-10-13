@@ -1,0 +1,4 @@
+To build, run "mvn assembly:assembly".
+
+This is a utility for creating OpenNMS provisioning requisitions from
+CSV files.  It is probably not yet suitable for production use.

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-2.0.xsd
+		http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+	<preConditions>
+		<or>
+			<and>
+				<!-- must be a fresh/empty database -->
+				<not><tableExists tableName="ipinterface" /></not>
+				<not><tableExists tableName="snmpinterface" /></not>
+				<not><tableExists tableName="categories" /></not>
+			</and>
+			<!-- OR -->
+			<and>
+				<!-- all three have to exist for it to be a database we can upgrade -->
+				<tableExists tableName="ipinterface" />
+				<tableExists tableName="snmpinterface" />
+				<tableExists tableName="categories" />
+			</and>
+		</or>
+	</preConditions>
+
+	<include file="create-sequences.xml" />
+
+	<include file="1.6.0/changelog.xml" />
+	<include file="1.7.0/changelog.xml" />
+	<include file="1.7.1/changelog.xml" />
+	<include file="1.7.3/changelog.xml" /> 
+	<include file="1.7.4/changelog.xml" />
+	<include file="1.7.5/changelog.xml" />
+	<include file="1.7.6/changelog.xml" />
+	<include file="1.7.7/changelog.xml" />
+	<include file="1.7.8/changelog.xml" />
+	<include file="1.7.10/changelog.xml" />
+	<include file="1.7.92/changelog.xml" />
+	<include file="1.8.5/changelog.xml" />
+	<include file="1.8.6/changelog.xml" />
+	<include file="1.8.8/changelog.xml" />
+	<include file="1.8.11/changelog.xml" />
+	<include file="1.9.4/changelog.xml"/>
+	<include file="1.9.7/changelog.xml"/>
+	<include file="1.9.8/changelog.xml"/>
+	<include file="1.9.9/changelog.xml"/>
+	<include file="1.9.90/changelog.xml"/>
+	<include file="1.9.91/changelog.xml"/>
+	<include file="1.9.92/changelog.xml"/>
+	<include file="1.9.94/changelog.xml"/>
+	<include file="1.10.1/changelog.xml"/>
+	<include file="1.10.4/changelog.xml"/>
+	<include file="1.10.13/changelog.xml"/>
+	<include file="1.11.1/AlarmNotes.xml"/>
+	<include file="1.11.3/changelog.xml"/>
+	<include file="1.11.4/changelog.xml"/>
+	<include file="1.11.90/changelog.xml"/>
+	<include file="1.11.95/changelog.xml"/>
+	<include file="1.12.2/changelog.xml"/>
+	<include file="1.12.5/changelog.xml"/>
+	<include file="1.12.6/changelog.xml"/>
+		
+	<include file="stored-procedures/getManagePercentAvailIntfWindow.xml" />
+	<include file="stored-procedures/getManagePercentAvailNodeWindow.xml" />
+	<include file="stored-procedures/getManagedOutageForIntfInWindow.xml" />
+	<include file="stored-procedures/getManagedOutageForNodeInWindow.xml" />
+	<include file="stored-procedures/getManagedServiceCountForIntf.xml" />
+	<include file="stored-procedures/getManagedServiceCountForNode.xml" />
+	<include file="stored-procedures/getOutageTimeInWindow.xml" />
+	<include file="stored-procedures/getPercentAvailabilityInWindow.xml" />
+	<include file="stored-procedures/dropTriggerIfExists.xml" />
+	<include file="stored-procedures/generate_daily_series.xml"/>
+
+	<include file="triggers/setIfServiceKeysOnInsertTrigger.xml" />
+	<include file="triggers/setIfServiceKeysOnUpdateTrigger.xml" />
+	<include file="triggers/setIpInterfaceKeysOnInsertTrigger.xml" />
+	<include file="triggers/setIpInterfaceKeysOnUpdateTrigger.xml" />
+	<include file="triggers/setSnmpInterfaceKeysOnInsertTrigger.xml" />
+	<include file="triggers/setSnmpInterfaceKeysOnUpdateTrigger.xml" />
+
+</databaseChangeLog>

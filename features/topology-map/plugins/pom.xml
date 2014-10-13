@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.opennms.features</groupId>
+    <artifactId>topology</artifactId>
+    <version>1.12.9</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.opennms.features.topology</groupId>
+  <artifactId>plugins</artifactId>
+
+  <name>OpenNMS :: Topology :: Plugins</name>
+
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>org.opennms.features.topology.plugins.browsers</module>
+    <module>org.opennms.features.topology.plugins.devutils</module>
+    <module>org.opennms.features.topology.plugins.layout</module>
+    <module>org.opennms.features.topology.plugins.ncs</module>
+    <module>org.opennms.features.topology.plugins.netutils</module>
+    <module>org.opennms.features.topology.plugins.ssh</module>
+    <module>org.opennms.features.topology.plugins.status</module>
+    <module>org.opennms.features.topology.plugins.topo.history</module>
+    <module>org.opennms.features.topology.plugins.topo.linkd</module>
+    <module>org.opennms.features.topology.plugins.topo.onmsdao</module>
+    <module>org.opennms.features.topology.plugins.topo.sfree</module>
+    <module>org.opennms.features.topology.plugins.topo.simple</module>
+    <module>org.opennms.features.topology.plugins.topo.vmware</module>
+  </modules>
+
+</project>

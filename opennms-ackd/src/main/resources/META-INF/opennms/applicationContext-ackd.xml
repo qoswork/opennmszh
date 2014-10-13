@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx" 
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd">
+
+  <bean id="ackdConfigurationDao" class="org.opennms.netmgt.dao.castor.DefaultAckdConfigurationDao">
+    <property name="configResource" value="file:${opennms.home}/etc/ackd-configuration.xml" />
+  </bean>
+  
+  <bean id="readerScheduler" class="java.util.concurrent.ScheduledThreadPoolExecutor" >
+    <constructor-arg>
+      <value>1</value>
+    </constructor-arg>
+  </bean>
+  
+  <bean id="javaMailReader" class="org.opennms.netmgt.ackd.readers.DefaultAckReader" >
+    <property name="ackProcessor" ref="mailAckProcessor" />
+    <property name="name" value="JavaMailReader" />
+  </bean>
+
+  <bean id="hypericReader" class="org.opennms.netmgt.ackd.readers.DefaultAckReader" >
+    <property name="ackProcessor" ref="hypericAckProcessor" />
+    <property name="name" value="HypericReader" />
+  </bean>
+
+  <bean id="hypericAckProcessor" class="org.opennms.netmgt.ackd.readers.HypericAckProcessor" >
+    <property name="ackdConfigDao" ref="ackdConfigurationDao" />
+    <!-- From META-INF/opennms/applicationContext-dao.xml -->
+    <property name="alarmDao" ref="alarmDao" />
+    <property name="ackService" ref="ackService" />
+  </bean>
+
+  <bean id="mailAckProcessor" class="org.opennms.netmgt.ackd.readers.MailAckProcessor" >
+    <property name="ackdConfigDao" ref="ackdConfigurationDao" />
+    <property name="ackService" ref="ackService" />
+    <property name="jmConfigDao" ref="javamailConfigDao" />
+  </bean>
+
+
+  <bean id="daemon" class="org.opennms.netmgt.ackd.Ackd" >
+    <property name="executor" ref="readerScheduler" />
+    <property name="configDao" ref="ackdConfigurationDao" />
+    <property name="eventForwarder" ref="eventForwarder"/>
+    <property name="ackService" ref="ackService" />
+    <property name="ackReaders" >
+      <list>
+        <ref local="javaMailReader" />
+        <ref local="hypericReader" />
+      </list>
+    </property>
+  </bean>
+  
+  <bean id="daemonListener" class="org.opennms.netmgt.model.events.AnnotationBasedEventListenerAdapter">
+    <property name="annotatedListener" ref="daemon" />
+    <property name="eventSubscriptionService" ref="eventSubscriptionService" />
+  </bean>
+
+</beans>

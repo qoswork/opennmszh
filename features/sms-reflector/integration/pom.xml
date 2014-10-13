@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="MACROMAN"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.opennms.features.sms-reflector.build</groupId>
+    <artifactId>provision</artifactId>
+    <version>1.12.9</version>
+    <relativePath>../provision</relativePath>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.opennms.features.sms-reflector</groupId>
+  <artifactId>integration</artifactId>
+  <name>Non OSGi Integration</name>
+  <packaging>jar</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>org.opennms.features.sms-reflector</groupId>
+      <artifactId>sms-ping</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.features.sms-reflector</groupId>
+      <artifactId>sms-service</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.features.sms-reflector</groupId>
+      <artifactId>sms-gateway</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opennms.smslib</groupId>
+      <artifactId>smslib</artifactId>
+      <version>3.4.3-20100302</version>
+    </dependency>
+  </dependencies>
+</project>

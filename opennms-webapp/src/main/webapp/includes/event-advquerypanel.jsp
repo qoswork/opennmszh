@@ -1,0 +1,241 @@
+<%--
+/*******************************************************************************
+ * This file is part of OpenNMS(R).
+ *
+ * Copyright (C) 2006-2012 The OpenNMS Group, Inc.
+ * OpenNMS(R) is Copyright (C) 1999-2012 The OpenNMS Group, Inc.
+ *
+ * OpenNMS(R) is a registered trademark of The OpenNMS Group, Inc.
+ *
+ * OpenNMS(R) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * OpenNMS(R) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenNMS(R).  If not, see:
+ *      http://www.gnu.org/licenses/
+ *
+ * For more information contact:
+ *     OpenNMS(R) Licensing <license@opennms.org>
+ *     http://www.opennms.org/
+ *     http://www.opennms.com/
+ *******************************************************************************/
+
+--%>
+
+<%@page language="java"
+	contentType="text/html"
+	session="true"
+	buffer="1024kb"
+	import="java.util.*,
+		org.opennms.web.element.NetworkElementFactory,
+		org.opennms.netmgt.model.OnmsSeverity,
+		org.opennms.web.event.*
+		"
+%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> 
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %> 
+<%@ taglib tagdir="/WEB-INF/tags/form" prefix="form" %>
+<%
+    //get the service names, in alpha order
+    Map<String, Integer> serviceNameMap = new TreeMap<String, Integer>(NetworkElementFactory.getInstance(getServletContext()).getServiceNameToIdMap());
+    Set<String> serviceNameSet = serviceNameMap.keySet();
+    Iterator<String> serviceNameIterator = serviceNameSet.iterator();
+
+%>
+
+<jsp:useBean id="now" class="java.util.Date" />
+<c:set var="months" value="一月,二月,三月,四月,五月,六月,七月,八月,九月,十月,十一月,十二月" />
+<fmt:formatDate var="nowYear" value="${now}" pattern="yyyy" />
+<fmt:formatDate var="nowMonth" value="${now}" pattern="M" />
+<fmt:formatDate var="nowDate" value="${now}" pattern="d" />
+<fmt:formatDate var="nowHour" value="${now}" pattern="h" />
+<fmt:formatDate var="nowMinute" value="${now}" pattern="m" />
+<fmt:formatDate var="formattedNowMinute" value="${now}" pattern="mm" />
+<fmt:formatDate var="nowAmPm" value="${now}" pattern="a" />
+<c:set var="amPmText">
+  <c:choose>
+    <c:when test="${nowAmPm == 'AM' && nowHour == 12}">中午</c:when>
+    <c:when test="${nowAmPm == '上午' && nowHour != 12}">上午</c:when>
+    <c:when test="${nowAmPm == 'PM' && nowHour == 12}">午夜</c:when>
+    <c:when test="${nowAmPm == '下午' && nowHour != 12}">下午</c:when>
+  </c:choose>
+</c:set>
+
+
+
+<form action="event/query" method="get">
+  <table width="100%" border="0" cellpadding="2" cellspacing="0">
+    <tr>
+      <td valign="top">
+        <table width="100%" border="0" cellpadding="2" cellspacing="0" >
+          <tr>
+            <td>事件文本包含:</td>
+            <td>TCP/IP地址like:</td>
+          </tr>
+
+          <tr>
+            <td><input type="text" name="msgsub" /></td>
+            <td><input type="text" name="iplike" value="" /></td>
+          </tr>
+
+          <tr>
+            <td>节点名称包含:</td>
+            <td>级别:</td>
+          </tr>
+
+          <tr>
+            <td><input type="text" name="nodenamelike" /></td>
+            <td>
+              <select name="severity" size="1">
+                <option selected="selected">所有</option>
+
+                <% for (OnmsSeverity severity : OnmsSeverity.values() ) { %>
+                  <option value="<%= severity.getId() %>">
+                    <%= severity.getLabel() %>
+                  </option>
+                <% } %>
+              </select>
+            </td>
+          </tr>
+
+          <tr><td colspan="2">确切的事件UEI</td></tr>
+          <tr><td colspan="2"><input type="text" name="exactuei" size="64" maxsize="128" /></td></tr>
+
+          <tr>
+            <td colspan="2">服务:</td>
+          </tr>
+          <tr>
+            <td colspan="2">
+              <select name="service" size="1">
+                <option selected>所有</option>
+
+                <% while( serviceNameIterator.hasNext() ) { %>
+                  <% String name = (String)serviceNameIterator.next(); %>
+                  <option value="<%=serviceNameMap.get(name)%>"><%=name%></option>
+                <% } %>
+              </select>
+            </td>
+          </tr>
+
+          <tr><td colspan="2"><hr width=100% /></td></tr>
+
+          <tr>
+            <td valign="top">
+              <input type="checkbox" name="useaftertime" value="1" />事件之后:
+            </td>
+            <td valign="top">
+              <input type="checkbox" name="usebeforetime" value="1"/>事件之前:
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <select name="afterhour" size="1">
+                <c:forEach var="i" begin="1" end="12">
+                  <form:option value="${i}" selected="${nowHour==i}">${i}</form:option>
+                </c:forEach>
+              </select>
+
+              <input type="text" name="afterminute" size="4" maxlength="2" value="${formattedNowMinute}" />
+
+              <select name="afterampm" size="1">
+                <c:forEach var="dayTime" items="上午,中午,下午,午夜">
+                  <form:option value="${dayTime == '上午' || dayTime == '午夜' ? 'am' : 'pm'}" selected="${dayTime==amPmText}">${dayTime}</form:option>
+                </c:forEach>
+              </select>
+            </td>
+            <td>
+              <select name="beforehour" size="1">
+                <c:forEach var="i" begin="1" end="12">
+                  <form:option value="${i}" selected="${nowHour==i}">${i}</form:option>
+                </c:forEach>
+              </select>
+
+              <input type="text" name="beforeminute" size="4" maxlength="2" value="${formattedNowMinute}" />
+
+              <select name="beforeampm" size="1">
+                <c:forEach var="dayTime" items="上午,中午,下午,午夜">
+                  <form:option value="${dayTime == '上午' || dayTime == '午夜' ? 'am' : 'pm'}" selected="${dayTime==amPmText}">${dayTime}</form:option>
+                </c:forEach>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <select name="aftermonth" size="1">
+                <c:forEach var="month" items="${months}" varStatus="status">
+                  <form:option value="${status.index}" selected="${status.count == nowMonth}">${month}</form:option>                  
+                </c:forEach>
+              </select>
+
+              <input type="text" name="afterdate" size="4" maxlength="2" value="${nowDate}" />
+              <input type="text" name="afteryear" size="6" maxlength="4" value="${nowYear}" />
+            </td>
+            <td>
+              <select name="beforemonth" size="1">
+                <c:forEach var="month" items="${months}" varStatus="status">
+                  <form:option value="${status.index}" selected="${status.count == nowMonth}">${month}</form:option>                  
+                </c:forEach>
+              </select>
+
+              <input type="text" name="beforedate" size="4" maxlength="2" value="${nowDate}" />
+              <input type="text" name="beforeyear" size="6" maxlength="4" value="${nowYear}" />
+            </td>
+          </tr>
+
+          <tr><td colspan="2"><hr width=100% /></td></tr>
+
+          <tr>
+            <td>排序:</td>
+            <td>每页事件数量:</td>
+          </tr>
+          <tr>
+            <td>
+              <select name="sortby" size="1">
+                <option value="id"           >事件ID (降序)</option>
+                <option value="rev_id"       >事件ID (升序)</option>
+                <option value="severity"     >级别 (降序)</option>
+                <option value="rev_severity" >级别 (升序)</option>
+                <option value="time"         >时间 (降序)</option>
+                <option value="rev_time"     >时间 (升序)</option>
+                <option value="node"         >节点 (升序)</option>
+                <option value="rev_node"     >节点 (降序)</option>
+                <option value="interface"    >接口 (升序)</option>
+                <option value="rev_interface">接口 (降序)</option>
+                <option value="service"      >服务 (升序)</option>
+                <option value="rev_service"  >服务 (降序)</option>
+              </select>
+            </td>
+            <td>
+              <select name="limit" size="1">
+                <option value="10">10条事件</option>
+                <option value="20">20条事件</option>
+                <option value="30">30条事件</option>
+                <option value="50">50条事件</option>
+                <option value="100">100条事件</option>
+                <option value="1000">1000条事件</option>
+              </select>
+            </td>
+          </tr>
+
+          <tr><td colspan="2"><hr width=100% /></td></tr>
+
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="submit" value="查询" />
+      </td>
+    </tr>
+  </table>
+</form>
+
+
+

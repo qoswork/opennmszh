@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<foreign-sources xmlns="http://xmlns.opennms.org/xsd/config/foreign-source" count="1">
+    <foreign-source date-stamp="2009-02-25T12:45:38.800-05:00" name="cheese">
+        <scan-interval>1d</scan-interval>
+        <detectors>
+            <detector name="food" class="org.opennms.netmgt.provision.persist.detectors.FoodDetector">
+                <parameter key="type" value="cheese" />
+                <parameter key="density" value="soft" />
+                <parameter key="sharpness" value="mild" />
+            </detector>
+        </detectors>
+        <policies>
+            <policy name="lower-case-node" class="org.opennms.netmgt.provision.persist.policies.NodeCategoryPolicy">
+                <parameter key="label" value="~^[a-z]$" />
+                <parameter key="category" value="Lower-Case-Nodes" />
+            </policy>
+            <policy name="all-ipinterfaces" class="org.opennms.netmgt.provision.persist.policies.InclusiveInterfacePolicy" />
+            <policy name="10-ipinterfaces" class="org.opennms.netmgt.provision.persist.policies.MatchingInterfacePolicy">
+            	<parameter key="ipaddress" value="~^10\..*$" />
+            </policy>
+            <policy name="cisco-snmp-interfaces" class="org.opennms.netmgt.provision.persist.policies.MatchingSnmpInterfacePolicy">
+                <parameter key="ifdescr" value="~^(?i:LEC).*$" />
+            </policy>
+        </policies>
+    </foreign-source>
+</foreign-sources>

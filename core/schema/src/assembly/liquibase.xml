@@ -1,0 +1,18 @@
+<assembly>
+  <id>liquibase</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>src/main/liquibase</directory>
+		<outputDirectory></outputDirectory>
+      <includes>
+        <include>**/*.xml</include>
+      </includes>
+      <fileMode>0644</fileMode>
+      <directoryMode>0755</directoryMode>
+    </fileSet>
+  </fileSets>
+</assembly>

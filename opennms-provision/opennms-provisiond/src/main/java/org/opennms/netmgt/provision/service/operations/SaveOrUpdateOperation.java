@@ -1,0 +1,211 @@
+/*******************************************************************************
+ * This file is part of OpenNMS(R).
+ *
+ * Copyright (C) 2008-2012 The OpenNMS Group, Inc.
+ * OpenNMS(R) is Copyright (C) 1999-2012 The OpenNMS Group, Inc.
+ *
+ * OpenNMS(R) is a registered trademark of The OpenNMS Group, Inc.
+ *
+ * OpenNMS(R) is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * OpenNMS(R) is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with OpenNMS(R).  If not, see:
+ *      http://www.gnu.org/licenses/
+ *
+ * For more information contact:
+ *     OpenNMS(R) Licensing <license@opennms.org>
+ *     http://www.opennms.org/
+ *     http://www.opennms.com/
+ *******************************************************************************/
+
+package org.opennms.netmgt.provision.service.operations;
+
+import java.net.InetAddress;
+
+import org.opennms.core.utils.InetAddressUtils;
+import org.opennms.core.utils.LogUtils;
+import org.opennms.netmgt.model.OnmsCategory;
+import org.opennms.netmgt.model.OnmsIpInterface;
+import org.opennms.netmgt.model.OnmsMonitoredService;
+import org.opennms.netmgt.model.OnmsNode;
+import org.opennms.netmgt.model.OnmsServiceType;
+import org.opennms.netmgt.model.PrimaryType;
+import org.opennms.netmgt.provision.service.ProvisionService;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.PropertyAccessorFactory;
+
+public abstract class SaveOrUpdateOperation extends ImportOperation {
+
+    private final OnmsNode m_node;
+    private OnmsIpInterface m_currentInterface;
+    
+    private ScanManager m_scanManager;
+    private boolean m_rescanExisting = true;
+    
+    /**
+     * <p>Constructor for SaveOrUpdateOperation.</p>
+     *
+     * @param foreignSource a {@link java.lang.String} object.
+     * @param foreignId a {@link java.lang.String} object.
+     * @param nodeLabel a {@link java.lang.String} object.
+     * @param building a {@link java.lang.String} object.
+     * @param city a {@link java.lang.String} object.
+     * @param provisionService a {@link org.opennms.netmgt.provision.service.ProvisionService} object.
+     */
+    public SaveOrUpdateOperation(String foreignSource, String foreignId, String nodeLabel, String building, String city, ProvisionService provisionService) {
+		this(null, foreignSource, foreignId, nodeLabel, building, city, provisionService, true);
+	}
+
+	/**
+	 * <p>Constructor for SaveOrUpdateOperation.</p>
+	 *
+	 * @param nodeId a {@link java.lang.Integer} object.
+	 * @param foreignSource a {@link java.lang.String} object.
+	 * @param foreignId a {@link java.lang.String} object.
+	 * @param nodeLabel a {@link java.lang.String} object.
+	 * @param building a {@link java.lang.String} object.
+	 * @param city a {@link java.lang.String} object.
+	 * @param provisionService a {@link org.opennms.netmgt.provision.service.ProvisionService} object.
+         * @param rescanExisting a {@link java.lang.Boolean} object
+	 */
+	public SaveOrUpdateOperation(Integer nodeId, String foreignSource, String foreignId, String nodeLabel, String building, String city, ProvisionService provisionService, boolean rescanExisting) {
+	    super(provisionService);
+	    
+        m_node = new OnmsNode();
+        m_node.setId(nodeId);
+		m_node.setLabel(nodeLabel);
+		m_node.setLabelSource("U");
+		m_node.setType("A");
+        m_node.setForeignSource(foreignSource);
+        m_node.setForeignId(foreignId);
+        m_node.getAssetRecord().setBuilding(building);
+        m_node.getAssetRecord().setCity(city);
+        m_rescanExisting = rescanExisting;
+	}
+	
+	/**
+	 * <p>getScanManager</p>
+	 *
+	 * @return a {@link org.opennms.netmgt.provision.service.operations.ScanManager} object.
+	 */
+	public ScanManager getScanManager() {
+	    return m_scanManager;
+	}
+
+	/**
+	 * <p>foundInterface</p>
+	 *
+	 * @param ipAddr a {@link java.lang.String} object.
+	 * @param descr a {@link java.lang.Object} object.
+	 * @param primaryType a {@link InterfaceSnmpPrimaryType} object.
+	 * @param managed a boolean.
+	 * @param status a int.
+	 */
+	public void foundInterface(String ipAddr, Object descr, final PrimaryType primaryType, boolean managed, int status) {
+		
+		if (ipAddr == null || "".equals(ipAddr.trim())) {
+		    log().error(String.format("Found interface on node %s with an empty ipaddr! Ignoring!", m_node.getLabel()));
+			return;
+		}
+
+        m_currentInterface = new OnmsIpInterface(ipAddr, m_node);
+        m_currentInterface.setIsManaged(status == 3 ? "U" : "M");
+        m_currentInterface.setIsSnmpPrimary(primaryType);
+        
+        if (PrimaryType.PRIMARY.equals(primaryType)) {
+        	final InetAddress addr = InetAddressUtils.addr(ipAddr);
+        	if (addr == null) {
+        		LogUtils.errorf(this, "Unable to resolve address of snmpPrimary interface for node %s with address '%s'", m_node.getLabel(), ipAddr);
+        	} else {
+        		m_scanManager = new ScanManager(addr);
+        	}
+        }
+        
+        //FIXME: verify this doesn't conflict with constructor.  The constructor already adds this
+        //interface to the node.
+        m_node.addIpInterface(m_currentInterface);
+    }
+	
+    /**
+     * <p>scan</p>
+     */
+    public void scan() {
+        if (m_rescanExisting) {
+    	updateSnmpData();
+	} else {
+            LogUtils.debugf(this, "Skipping scan for node %s: rescanExisting is false", getNode());
+	}
+    }
+	
+    /**
+     * <p>updateSnmpData</p>
+     */
+    protected void updateSnmpData() {
+        if (m_scanManager != null) {
+            m_scanManager.updateSnmpData(m_node);
+        }
+	}
+
+    /**
+     * <p>foundMonitoredService</p>
+     *
+     * @param serviceName a {@link java.lang.String} object.
+     */
+    public void foundMonitoredService(String serviceName) {
+        // current interface may be null if it has no ipaddr
+        if (m_currentInterface != null) {
+            OnmsServiceType svcType = getProvisionService().createServiceTypeIfNecessary(serviceName);
+            OnmsMonitoredService service = new OnmsMonitoredService(m_currentInterface, svcType);
+            service.setStatus("A"); // DbIfServiceEntry.STATUS_ACTIVE
+            m_currentInterface.getMonitoredServices().add(service);
+        }
+    
+    }
+
+    /**
+     * <p>foundCategory</p>
+     *
+     * @param name a {@link java.lang.String} object.
+     */
+    public void foundCategory(String name) {
+        OnmsCategory category = getProvisionService().createCategoryIfNecessary(name);
+        m_node.getCategories().add(category);
+    }
+
+    /**
+     * <p>getNode</p>
+     *
+     * @return a {@link org.opennms.netmgt.model.OnmsNode} object.
+     */
+    protected OnmsNode getNode() {
+        return m_node;
+    }
+
+    protected boolean getRescanExisting() {
+        return m_rescanExisting;
+    }
+
+    /**
+     * <p>foundAsset</p>
+     *
+     * @param name a {@link java.lang.String} object.
+     * @param value a {@link java.lang.String} object.
+     */
+    public void foundAsset(final String name, final String value) {
+        final BeanWrapper w = PropertyAccessorFactory.forBeanPropertyAccess(m_node.getAssetRecord());
+        try {
+            w.setPropertyValue(name, value);
+        } catch (final BeansException e) {
+            log().warn("Could not set property on object of type " + m_node.getClass().getName() + ": " + name, e);
+        }
+    }
+}

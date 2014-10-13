@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+  xmlns:beans="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+              http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd"> 
+  
+  <!-- Only use BASIC auth for the RESTful APIs -->
+  <http pattern="/rest/**" realm="OpenNMS Realm">
+    <!-- Restrict access to SNMP configuration to ROLE_REST and ROLE_ADMIN only -->
+    <intercept-url pattern="/rest/snmpConfig/**" access="ROLE_REST,ROLE_ADMIN"/>
+    <intercept-url pattern="/rest/**" method="DELETE" access="ROLE_REST,ROLE_ADMIN"/>
+    <intercept-url pattern="/rest/**" method="POST" access="ROLE_REST,ROLE_ADMIN"/>
+    <intercept-url pattern="/rest/**" method="PUT" access="ROLE_REST,ROLE_ADMIN"/>
+    <intercept-url pattern="/rest/**" method="GET" access="ROLE_REST,ROLE_ADMIN,ROLE_USER"/>
+    <intercept-url pattern="/rest/**" method="HEAD" access="ROLE_REST,ROLE_ADMIN,ROLE_USER"/>
+    <intercept-url pattern="/rest/**" method="OPTIONS" access="ROLE_REST,ROLE_ADMIN,ROLE_USER"/>
+
+    <http-basic />
+
+    <custom-filter position="LAST" ref="authFilterEnabler"/>
+  </http>
+  
+  <!-- Only use BASIC auth for the RSS URL -->
+  <http pattern="/rss.jsp*" access-denied-page="/accessDenied.jsp" realm="OpenNMS Realm">
+    <intercept-url pattern="/rss.jsp*" access="ROLE_REST,ROLE_ADMIN,ROLE_USER"/>
+
+    <http-basic />
+
+    <custom-filter position="LAST" ref="authFilterEnabler"/>
+  </http>
+  
+  <!-- Allow anonymous access to the webstart portion of the app -->
+  <http pattern="/webstart/**" security="none"/>
+
+  <!-- Only one <http> section can match the implicit '/**' pattern -->
+  <http pattern="/**" access-denied-page="/accessDenied.jsp" realm="OpenNMS Realm">
+    <intercept-url pattern="/" access="ROLE_ANONYMOUS,ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/favicon.ico" access="ROLE_ANONYMOUS,ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/logoff.jsp" access="ROLE_ANONYMOUS,ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/login.jsp*" access="ROLE_ANONYMOUS,ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/accessDenied.jsp*" access="ROLE_ANONYMOUS,ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/css/*.css" access="ROLE_ANONYMOUS,ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/js/pngfix.js" access="ROLE_ANONYMOUS,ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/js/global.js" access="ROLE_ANONYMOUS,ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/images/**" access="ROLE_ANONYMOUS,ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/admin/node/add.htm" access="ROLE_PROVISION, ROLE_ADMIN" />
+    <intercept-url pattern="/admin/provisioningGroups.htm" access="ROLE_PROVISION, ROLE_ADMIN" />
+    <intercept-url pattern="/admin/editForeignSource.htm" access="ROLE_PROVISION, ROLE_ADMIN" />
+    <intercept-url pattern="/admin/editProvisioningGroup.htm" access="ROLE_PROVISION, ROLE_ADMIN" />
+    <intercept-url pattern="/admin/**" access="ROLE_ADMIN" />
+    <intercept-url pattern="/**/mib-compiler" access="ROLE_ADMIN" />
+    <intercept-url pattern="/**/admin-*" access="ROLE_ADMIN" />
+    <intercept-url pattern="/rtc/post/**" access="ROLE_RTC" />
+    
+    <intercept-url pattern="/frontpage.htm" access="ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/dashboard.jsp" access="ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/gwt.js" access="ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/surveillanceservice.gwt" access="ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/graph/graph.png" access="ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/dashboard/**" access="ROLE_USER,ROLE_DASHBOARD" />
+    <intercept-url pattern="/coreweb/**" access="ROLE_USER,ROLE_DASHBOARD" />
+    
+    <intercept-url pattern="/**" access="ROLE_USER" />
+    
+    
+    
+    <!-- NrtCollection -->
+    <intercept-url pattern="/amq/*" access="ROLE_ANONYMOUS,ROLE_USER,ROLE_DASHBOARD" />
+    
+    <form-login login-page="/login.jsp" authentication-failure-url="/login.jsp?login_error=1" />
+    <http-basic />
+    <logout logout-success-url="/logoff.jsp" />
+    
+    <custom-filter position="LAST" ref="authFilterEnabler"/>
+  </http>
+  
+  <!--  This filter is used to setup the Hibernate query filtering to authorized nodes only -->
+  <beans:bean id="authFilterEnabler" class="org.opennms.web.springframework.security.AuthFilterEnabler">
+    <beans:property name="filterManager" ref="filterManager" />
+    <beans:property name="groupDao" ref="groupDao" />
+  </beans:bean>
+
+  <authentication-manager>
+    <!-- Use our custom authentication provider -->
+    <authentication-provider ref="hybridAuthenticationProvider" />
+    <!-- To enable external (e.g. LDAP, RADIUS) authentication, uncomment the following.
+         You must also rename and customize exactly ONE of the example files in the
+         spring-security.d subdirectory. -->
+    <!-- <authentication-provider ref="externalAuthenticationProvider" /> -->
+  </authentication-manager>
+
+  <!-- ===================== USER DAO AUTHENTICATION ==================== -->
+  <beans:bean id="userDao" class="org.opennms.web.springframework.security.SpringSecurityUserDaoImpl">
+    <beans:property name="magicUsersConfigurationFile" value="${opennms.home}/etc/magic-users.properties" />
+    <beans:property name="usersConfigurationFile" value="${opennms.home}/etc/users.xml" />
+    <beans:property name="groupsConfigurationFile" value="${opennms.home}/etc/groups.xml" />
+    <beans:property name="useGroups" value="false" />
+    <beans:property name="userManager" ref="userManager" />
+    <beans:property name="groupManager" ref="groupManager" />
+  </beans:bean>
+
+  <beans:bean id="openNMSUserDetailsService" class="org.opennms.web.springframework.security.OpenNMSUserDetailsService">
+    <beans:property name="userDao" ref="userDao" />
+  </beans:bean>
+
+  <beans:bean id="hybridAuthenticationProvider" class="org.opennms.web.springframework.security.HybridOpenNMSUserAuthenticationProvider">
+    <beans:property name="userDao" ref="userDao" />
+    <beans:property name="userManager" ref="userManager" />
+  </beans:bean>
+
+  <!--  this is used to send events on login success and failure -->
+  <beans:bean class="org.opennms.web.springframework.security.SecurityAuthenticationEventOnmsEventBuilder">
+    <beans:property name="eventProxy" ref="eventProxy"/>
+  </beans:bean>
+
+</beans:beans>

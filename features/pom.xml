@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.opennms</groupId>
+    <artifactId>opennms</artifactId>
+    <version>1.12.9</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>org.opennms.features</artifactId>
+  <packaging>pom</packaging>
+  <name>OpenNMS Features</name>
+  <modules>
+    <module>acl</module>
+    <module>instrumentationLogReader</module>
+    <module>jdbc-collector</module>
+    <module>juniper-tca-collector</module>
+    <module>ncs</module>
+    <module>poller</module>
+    <module>provisioning</module>
+    <module>reporting</module>
+    <module>remote-poller</module>
+    <module>remote-poller-jnlp</module>
+    <module>remote-poller-gwt</module>
+    <module>request-tracker</module>
+    <module>springframework-security</module>
+    <module>system-report</module>
+    <module>ticketing</module>
+    <module>geocoder</module>
+    <module>name-cutter</module>
+    <module>opennms-jmx-tools</module>
+
+    <!-- SNMP MIB Parser and Event/Collection Configuration -->
+    <module>vaadin-snmp-events-and-metrics</module>
+
+    <!-- Near Real Time Graphing -->
+    <module>nrtg</module>
+
+    <!-- Topology Map -->
+    <module>topology-map</module>
+    <module>vaadin-node-maps</module>
+
+    <!-- SMS monitoring -->
+    <module>phonebook</module>
+    <module>sms-reflector</module>
+
+    <!-- webapps -->
+    <module>root-webapp</module>
+
+    <!-- GWT UI plugins -->
+    <module>node-page-list</module>
+    <module>opennms-gwt-theme</module>
+    <module>gwt-suggestion-combobox</module>
+    <module>gwt-ksc-combobox</module>
+    <module>gwt-ksc-add</module>
+    <module>gwt-graph-resource-list</module>
+    <module>gwt-snmpselect-list</module>
+    <module>gwt-tableresources</module>
+
+    <!-- Notifications -->
+    <module>notifications</module>
+
+    <!-- Access point monitor -->
+    <module>access-point-monitor</module>
+
+    <!-- OpenNMS Vaadin Themes -->
+    <module>themes</module>
+  </modules>
+</project>
